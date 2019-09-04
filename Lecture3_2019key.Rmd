@@ -1,0 +1,347 @@
+---
+title: "Lecture 3 - Key"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+```
+
+
+### The binomial model
+After suspicious performance in the weekly soccer match, 37 mathematical sciences students, staff, and faculty were tested for performance enhancing drugs. Let $Y_i = 1$ if athlete $i$ tests positive and $Y_i=0$ otherwise. A total of 13 mathletes tested positive.
+\vfill
+
+What is the sampling model $p(y_1,...,y_{37}|\theta)$?
+\vfill
+*$p(y_1,...,y_{37}|\theta) = \binom{N}{y} \theta^y (1-\theta)^{n-y}$*
+\vfill
+
+Assume a uniform prior distribution on $p(\theta)$. Write the pdf for this distribution.
+
+\begin{equation}
+    p(\theta)=
+    \begin{cases}
+      1, & \text{if}\ 0 \leq \theta \leq 1 \\
+      0, & \text{otherwise}
+    \end{cases}*]
+  \end{equation}
+
+\vfill
+
+In what larger class of distributions does this distribution reside? What are the parameters?
+
+*Beta, $\alpha = 1$, $\beta =1$.*
+\vfill
+
+*Beta distribution. Recall, $\theta \sim Beta(\alpha,\beta)$ if:*
+\begin{eqnarray*}
+*p(\theta) = \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}\theta^{\alpha -1} (1-\theta)^{\beta-1}*
+\end{eqnarray*}
+
+Note that $E[\theta] = \frac{\alpha}{\alpha+\beta}$ and $Var[\theta]=\frac{\alpha \beta}{(\alpha+\beta+1)(\alpha+\beta)^2}$ if *$\theta \sim Beta(\alpha, \beta)$.*
+\vfill
+
+Now compute the posterior distribution, $p(\theta|\boldsymbol{y})$.
+\begin{eqnarray*}
+p(\theta|\boldsymbol{y}) &=& \frac{\mathcal{L}(\theta|\boldsymbol{y}) p(\theta)}{\int_\theta \mathcal{L}(\theta|\boldsymbol{y}) p(\theta) d\theta}\\
+&=& \frac{\mathcal{L}(\theta|\boldsymbol{y}) p(\theta)}{p(\boldsymbol{y})}\\
+&\propto& \mathcal{L}(\theta|\boldsymbol{y})p(\theta)\\
+&\propto& \theta^y (1-\theta)^{n-y} \theta^{\alpha-1}(1-\theta)^{\beta-1}\\
+&\propto& \theta^{13  +1 -1} (1-\theta)^{37-13+1-1}\\
+&\sim& Beta(14,25)
+\end{eqnarray*}
+
+\vfill
+
+The posterior expectation,*$E[\theta|y]=\frac{\alpha+y}{\alpha+\beta+n},$ is a function of prior information and the data.*
+\vfill
+\newpage
+
+\subsubsection*{Conjugate Priors}
+We have shown that a beta prior distribution and a binomial sampling model lead to a beta posterior distribution. This class of beta priors is **conjugate** for the binomial sampling model.
+
+
+**Def: Conjugate**  *A class $\mathcal{P}$ of prior distributions for $\theta$ is called conjugate for a sampling model $p(y|\theta)$ if 
+$p(\theta) \in \mathcal{P} \rightarrow p(\theta|y) \in \mathcal{P}$*.
+\vfill
+
+Conjugate priors make posterior calculations simple,*but might not always be the best representation of prior beliefs.*
+\vfill
+
+#### Intuition about Prior Parameters
+
+Note the posterior expectation can be written as:
+\begin{eqnarray*}
+E[\theta|y] &=& \frac{\alpha + y}{\alpha + \beta + n}\\
+&=&\frac{\alpha +\beta}{\alpha+\beta+n}\left(\frac{\alpha}{\alpha+\beta}\right) + \frac{n}{\alpha + \beta + n} \left(\frac{y}{n	}\right)
+\end{eqnarray*}
+
+Now what do we make of:
+
+- $\alpha$: *is roughly the prior number of 1's*
+\vfill
+
+- $\beta$: *is roughly the prior number of 0's*
+\vfill
+
+- $\alpha + \beta$: *is roughly the prior sample size*
+\vfill
+
+
+If $n > > \alpha + \beta$ *then much of the information in the weighted average comes from the data.*
+\vfill
+
+If $n < < \alpha + \beta$ *then much of the information in the weighted average comes from the prior.*
+
+\newpage
+
+#### Predictive Distributions
+An important element in Bayesian statistics is the predictive distribution, in this case let $Y^*$ be the outcome of a future experiment. We are interested in computing:
+\begin{eqnarray*}
+	Pr(Y^* =1 | y_1, ..., y_n) &=& \int Pr(Y^*=1|\theta, y_1, ..., y_n) p(\theta|y_1,...,y_n) d\theta \\
+		&=& \int \theta p(\theta|y_1,...,y_n) d\theta\\
+		&=& E[\theta|y_1,...,y_n] \\
+		&=& \frac{\alpha + \boldsymbol{y}}{\alpha+\beta + n}, \text{where } \boldsymbol{y}=\sum_i^n y_i
+\end{eqnarray*}
+\vfill
+
+Note that the predictive distribution does not depend on any unknown quantities, but rather only the observed data. Furthermore, $Y^{*}$ is not independent of $Y_1,...,Y_n$ but depends on them through $\theta$.
+
+\vfill
+
+#### Posterior Intervals
+With a Bayesian framework we can compute **credible intervals**.
+
+**Credible Interval**: *An interval $[l(y),u(y)]$ is an $1-\alpha \%$ credible interval for $\theta$ if:*
+\begin{eqnarray}
+*Pr(l(y) < \theta < u(y)|Y=y) = 1-\alpha*
+\end{eqnarray}
+
+Recall in a frequentist setting 
+\begin{equation}
+    Pr(l(y) < \theta <u(y)|\theta)=
+    \begin{cases}
+      *1, & \text{if}\ \theta \in [l(y),u(y)]* \\
+      *0, & \text{otherwise}*
+    \end{cases}
+  \end{equation}
+  \vfill
+  
+  Note that in some settings Bayesian intervals can also have frequentist coverage probabilities, at least asymptotically.
+  \vfill
+  
+**Quantile based intervals**
+  With quantile based intervals, the posterior quantiles are used with $\theta_{\alpha/2}, \theta_{1-\alpha/2}$ such that:
+  \begin{enumerate}
+  	\item *$Pr(\theta <\theta_{\alpha/2}|Y=y) = \alpha/2$ and*
+  	\item *$Pr(\theta > \theta_{1-\alpha/2}|Y=y) = \alpha/2$.*
+  \end{enumerate}
+  Quantile based intervals are typically easy to compute.
+  
+  \vfill
+  
+**Highest posterior density (HPD) region:** A 100 $\times$ (1-$\alpha)\%$ HPD region consists of a subset of the parameter space, $s(y) \subset \Theta$ such that
+\begin{enumerate}
+	\item *$Pr(\theta \in s(y)|Y=y) = 1- \alpha$*
+	\item *If $ \theta_a \in s(y)$, and $\theta_b \notin s(y),$ then $p(\theta_a|Y=y) > p(\theta_b|Y=y)$.*
+\end{enumerate} 
+\vfill
+
+\vfill
+*All points in the HPD region have higher posterior density than those not in region. Additionally the HPD \emph{region} need not be a continuous interval. HPD regions are typically more computationally intensive to compute than quantile based intervals.*
+
+\newpage
+#### The Poisson Model
+
+Now assume the National Park Services records daily totals of tourists caught breaking the rules. This data can be modeled with a Poisson model.
+\vfill
+
+Recall, $Y \sim Poisson(\theta)$ if
+\begin{equation}
+	*Pr(Y=y|\theta) =\frac{\theta^y \exp(-\theta)}{y!}.*
+\end{equation}
+\vfill
+
+Properties of the Poisson distribution:
+
+- E[Y]= *$\theta$*
+\vfill
+- Var(Y) = *$\theta$*
+\vfill
+
+- $\sum_i^n Y_i \sim Poisson(\theta_1 + ... + \theta_n)$ if *$Y_i \sim Poisson(\theta_i)$*
+\vfill
+
+##### Conjugate Priors for Poisson
+Recall conjugate priors for a sampling model have a posterior model from the same class as the prior. Let $y_i \sim Poisson(\theta)$, then
+\begin{eqnarray}
+ p(\theta|y_1,...,y_n) &\propto & p(\theta) \mathcal{L}(\theta|y_1,...,y_n)\\
+ &\propto& p(\theta) \times \theta^{\sum_{y_i}} \exp(-n\theta)
+\end{eqnarray}
+\vfill
+\newpage
+
+Thus the conjugate prior class will have the form *$\theta^{c_1} \exp(c_2 \theta)$. This is the kernel of a gamma distribution.*
+\vfill
+
+
+A positive quantity $\theta$ has a *$Gamma(a,b)$ distribution if:*
+\begin{equation*}
+ p(\theta)=\frac{b^a}{\Gamma(a)} \theta^{a-1} \exp(-b\theta),\text{ for }\theta,a,b > 0
+\end{equation*}
+\vfill
+
+Properties of *a gamma distribution:*
+
+- $E[\theta]$ = *$a/b$*
+\vfill
+
+- $Var(\theta)$ = *$a/b^2$*
+\vfill
+
+##### Posterior Distribution
+Let $Y_1,...,Y_n \sim Poisson(\theta)$ and $p(\theta) \sim gamma(a,b),$ then 
+\begin{eqnarray}
+p(\theta|y_1,...,y_n) &=& \frac{p(\theta) p(y_1,...,y_n|\theta)}{p(y_1,...,y_n)}\\
+*&=&\{\theta^{a-1}\exp(-b\theta)\} \times \{\theta^{\sum y_i} \exp(-n\theta)\} \times \{c(y_1,...,y_n,a,b)\}\\*
+*&\propto & \theta^{a + \sum y_i -1} \exp(-\theta(b+n))\\*
+\end{eqnarray}
+*So $\theta|y_1,...,y_n \sim gamma(a +\sum y_i,b+n)$.*
+\vfill
+
+Note that 
+\begin{eqnarray*}
+E[\theta|y_1,...,y_n] &=& \frac{a + \sum y_i}{b + n}\\
+*&=& \frac{b}{b+n}\frac{a}{b} + \frac{n}{b+n}\frac{\sum y_i}{n}*
+\end{eqnarray*}
+\vfill
+
+\newpage
+
+So now a bit of intuition about the prior distribution. The posterior expectation of $\theta$ is a combination of the prior expectation and the sample average:
+
+- b *is interpreted as the number of prior observations*
+\vfill
+
+- a *is interpreted as the sum of the counts from b prior observations*
+\vfill
+
+*When $n >> b$ the information from the data dominates the prior distribution.*
+*When $n << b$ the information from the prior distribution dominates the data.*
+\vfill
+
+##### Predictive distribution
+The predictive distribution, $p(y^*|y_1,...,y_n)$, can be computed as:
+\begin{eqnarray*}
+p(y^*|y_1,...,y_n) &=& \int p(y^*|\theta,y_1,...,y_n) p(\theta|y_1,...,y_n) d\theta\\
+&=& \int p(y^*|\theta) p(\theta|y_1,...,y_n) d\theta \\
+&=& \int \left\lbrace \frac{\theta^{y^*} \exp(-\theta)}{y^*!}\right\rbrace \left\lbrace \frac{(b+n)^{a + \sum y_i}}{\Gamma(a + \sum y_i)} \theta^{a + \sum y_i -1} \exp(-(b+n)\theta) \right\rbrace \\
+&=& ...\\
+&=& ...
+\end{eqnarray*}
+You can (and likely will) show that $p(y^*|y_1,...,y_n) \sim NegBinom(a + \sum y_i, b+n)$.
+
+#### Exponentia Families}
+The binomial and Poisson models are examples of one-parameter exponential families. A distribution follows a one-parameter exponential family if it can be factorized as:
+\begin{equation}
+ p(y|\theta) = h(y) c(\phi) \exp(\phi t(y)),
+\end{equation}
+where $\phi$ is the unknown parameter and $t(y)$ is the sufficient statistic. The using the class of priors, where $p(\phi) \propto c(\phi)^{n_0}\exp(n_0 t_0 \phi)$, is a conjugate prior. There are similar considerations to the Poisson case where $n_0$ can be thought of as a "prior sample size" and $t_0$ is a "prior guess."
+
+\newpage
+### Prior Distribution Choice
+A noninformative prior, $p(\theta)$, *contains no information about $\theta$.*
+\vfill
+
+Example 1. Suppose $\theta$ is the probability of success in a binomial distribution, then the uniform distribution on the interval $[0,1]$ is a noninformative prior.
+\vfill
+
+Example 2. Suppose $\theta$ is the mean parameter of a normal distribution. What is a noninformative prior distribution for the mean? 
+\vfill
+
+- *One option would be a Normal distribution centered at zero with very large variance. However, this will still contain more mass at the center of the distribution and hence, favor that part of the parameter space.*
+\vfill
+- *We'd like to place a uniform prior on $\theta$, but $\int_\infty^\infty c \; dx = \infty,$ so the uniform prior on the real line is not a probability distribution. Does this matter? This was actually a common prior used by LaPlace. Sometimes is the answer. Ultimately the inference is based on the posterior, so if an improper prior leads to a proper posterior that is okay. In most simple analyses we will see in this class improper priors will be fine.*
+
+#### Invariant Priors
+Recall ideas of variable transformation (from Casella and Berger): Let X have pdf $p_x(x)$ and let Y = g(X), where g is a monotone function. Suppose $p_X(x)$ is continuous and that $g^{-1}(y)$ has a continuous derivative. Then the pdf of Y is given by
+\begin{equation*}
+p_y(y)=p_x(g^{-1}(y)) \left| \frac{d}{dy} g^{-1}(y) \right| 
+\end{equation*}
+\vfill
+Example. Let $p_x(x) =1,$ for $x \in [0,1]$ and let $Y=g(x)= -\log(x)$, then 
+\begin{eqnarray*}
+*p_y(y) &=&p_x(g^{-1}(y)) \left| \frac{d}{dy} g^{-1}(y) \right|\\*
+*&=&  \left| \frac{d}{dy} g^{-1}(y) \right| \\*
+*&=& \exp(-y) \text{ for } y \in [0, \infty)*
+\end{eqnarray*}
+\vfill
+Now if $p_x(x)$ had been a prior on X, the transformation to y and $p_y(y)$ *results in an informative prior for y.*
+
+\vfill
+
+\newpage
+
+##### Jeffreys Priors
+The idea of invariant priors was addressed by Jeffreys. Let $p_J(\theta)$ be a Jeffreys prior if:
+\begin{equation*}
+p_J(\theta) = [I(\theta)]^{1/2},
+\end{equation*}
+where $I(\theta)$ is the expected Fisher information given by
+\begin{equation*}
+I(\theta) = -E\left[\frac{\partial^2 \log p(X|\theta)}{\partial \theta^2} \right]
+\end{equation*}
+\vfill
+
+Example. Consider the Normal distribution and place a prior on $\mu$ when $\sigma^2$ is known. Then the Fisher information is 
+\begin{eqnarray*}
+*I(\theta) &=& -E \left[ \frac{\partial^2}{\partial \mu^2} \left( - \frac{(X-\mu)^2}{2\sigma^2}\right)   \right]\\*
+*&=& \frac{1}{\sigma^2}*
+\end{eqnarray*}
+**Hence in this case the Jeffreys prior for $\mu$ is a constant.*
+\vfill
+A similar derivation for the joint prior $p(\mu,\sigma)= \frac{1}{\sigma}$
+
+##### Advantages and Disadvantages of Objective Priors
+Advantages
+
+- *Objective prior distributions reflect the idea of there being very little information available about the underlying process.*
+	\vfill
+- *There are sometimes mathematically equivalent results obtained by Bayesian methods using objective prior distributions and results obtained using frequentist methods on the same problem (but the results in the two cases have different philosophical interpretations.)*
+	\vfill
+- *Objective prior distributions are easy to defend.*
+	\vfill
+
+\newpage
+
+Disadvantages
+
+- *Sometimes improper priors result from objective prior distributions*
+\vfill
+- *In multiple parameter situations, the parameters are often taken to be independent*
+\vfill
+- *Improper objective prior distributions are problematic in Bayes factor computations and some model selection settings.*
+\vfill
+
+\subsection*{Advantages and Disadvantages of Subjective Priors}
+Advantages
+
+- *Subjective prior distributions are proper.*
+\vfill
+- *Subjective prior distributions introduced informed understanding into the analysis.*
+\vfill
+- *Subjective prior distributions can provide sufficient information to solve problems when other methods are not sufficient.*
+\vfill
+
+Disadvantages
+
+- *It is difficult to assess subjective prior beliefs as it is hard to translate prior knowledge into a probability distribution*
+\vfill
+- *Result of a Bayesian analysis may not be relevant if the prior beliefs used do not match your own.*
+\vfill
+- *A subjective prior may not be computationally convenient*
+\vfill
+
+In many cases weakly-informative prior distributions are used that have some of the benefits of subjective priors without imparting strong information into the analysis.
